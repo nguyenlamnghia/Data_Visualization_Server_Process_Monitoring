@@ -29,6 +29,20 @@ npm run test
 npm run build
 ```
 
+## Deploy To GitHub Pages
+
+This project is configured for GitHub Pages through GitHub Actions.
+
+1. Push the branch to a GitHub repository.
+2. In the GitHub repository, open `Settings -> Pages`.
+3. Under `Build and deployment`, set `Source` to `GitHub Actions`.
+4. Merge or push to `master`, or run the `Deploy to GitHub Pages` workflow manually from the Actions tab.
+
+The Vite base path is detected automatically in GitHub Actions:
+
+- `https://<username>.github.io/<repo>/` uses `/<repo>/`.
+- `https://<username>.github.io/` uses `/`.
+
 ## Capstone Talking Points
 
 - Objective: monitor overnight server processes before users arrive.
