@@ -23,12 +23,26 @@ type FailureBarClickData = {
   payload?: DailyFailureSummary;
 };
 
+const dateButtonFormatter = new Intl.DateTimeFormat('en-GB', {
+  timeZone: 'UTC',
+  day: 'numeric',
+  month: 'short',
+});
+
+function formatDateButtonLabel(summary: DailyFailureSummary) {
+  const dateLabel = dateButtonFormatter.format(new Date(`${summary.date}T00:00:00Z`));
+  return `${dateLabel}, ${summary.failureRate.toFixed(1)}% failed`;
+}
+
 export function FailureOverview({
   summaries,
   selectedDate,
   averageFailureRate,
   onSelectDate,
 }: FailureOverviewProps) {
+  const maxFailureRate = Math.max(0, ...summaries.map((summary) => summary.failureRate));
+  const yAxisMax = Math.max(8, Math.ceil(maxFailureRate + 1));
+
   const handleBarClick = (data: unknown) => {
     const clickedData = data as FailureBarClickData;
     const date = clickedData.date ?? clickedData.payload?.date;
@@ -51,7 +65,7 @@ export function FailureOverview({
           <BarChart data={summaries} margin={{ top: 18, right: 18, bottom: 0, left: 0 }}>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e4e9ee" />
             <XAxis dataKey="label" tickLine={false} axisLine={false} />
-            <YAxis hide domain={[0, 8]} />
+            <YAxis hide domain={[0, yAxisMax]} />
             <Tooltip formatter={(value) => [`${value}%`, 'Failure rate']} />
             <ReferenceLine y={averageFailureRate} stroke="#d71920" strokeDasharray="2 4" />
             <Bar dataKey="failureRate" radius={[4, 4, 0, 0]} onClick={handleBarClick}>
@@ -67,6 +81,22 @@ export function FailureOverview({
             </Bar>
           </BarChart>
         </ResponsiveContainer>
+      </div>
+      <div className="overview-date-strip" aria-label="Select overview date">
+        {summaries.map((entry) => {
+          const label = formatDateButtonLabel(entry);
+          return (
+            <button
+              type="button"
+              className="overview-date-button"
+              key={entry.date}
+              aria-pressed={entry.date === selectedDate}
+              onClick={() => onSelectDate(entry.date)}
+            >
+              {label}
+            </button>
+          );
+        })}
       </div>
     </section>
   );

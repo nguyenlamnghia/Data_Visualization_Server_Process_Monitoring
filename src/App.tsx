@@ -37,7 +37,10 @@ export default function App() {
     () => getDailyKpis(selectedRuns, dailySummaries, selectedDate),
     [selectedDate, selectedRuns],
   );
-  const averageFailureRate = useMemo(() => calculateAverageFailureRate(dailySummaries), []);
+  const averageFailureRate = useMemo(
+    () => calculateAverageFailureRate(dailySummaries, selectedDate),
+    [selectedDate],
+  );
   const selectedDateLabel = dateFormatter.format(new Date(`${selectedDate}T00:00:00Z`));
 
   return (
