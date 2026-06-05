@@ -1,7 +1,9 @@
 import { useMemo, useState } from 'react';
 import { DashboardHeader } from './components/DashboardHeader';
+import { DemoTaskModal } from './components/DemoTaskModal';
 import { FailureOverview } from './components/FailureOverview';
 import { KpiStrip } from './components/KpiStrip';
+import { ProcessTimeline } from './components/ProcessTimeline';
 import { DEFAULT_DATE, dailySummaries, processRuns } from './data/mockServerData';
 import {
   calculateAverageFailureRate,
@@ -9,19 +11,14 @@ import {
   getDailyKpis,
   getRunsForDate,
 } from './lib/dashboardMetrics';
-import type { ProcessFilter } from './types';
-
-const dateFormatter = new Intl.DateTimeFormat('en-US', {
-  timeZone: 'UTC',
-  weekday: 'long',
-  month: 'long',
-  day: 'numeric',
-});
+import type { ProcessFilter, ProcessRun } from './types';
 
 export default function App() {
   const [selectedDate, setSelectedDate] = useState(DEFAULT_DATE);
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState<ProcessFilter>('Datasource');
+  const [selectedProcess, setSelectedProcess] = useState<ProcessRun | null>(null);
+  const [taskModalRun, setTaskModalRun] = useState<ProcessRun | null>(null);
 
   const selectedRuns = useMemo(() => getRunsForDate(processRuns, selectedDate), [selectedDate]);
   const visibleRuns = useMemo(
@@ -41,7 +38,11 @@ export default function App() {
     () => calculateAverageFailureRate(dailySummaries, selectedDate),
     [selectedDate],
   );
-  const selectedDateLabel = dateFormatter.format(new Date(`${selectedDate}T00:00:00Z`));
+
+  function handleSelectDate(date: string) {
+    setSelectedDate(date);
+    setSelectedProcess(null);
+  }
 
   return (
     <main className="app-shell">
@@ -56,12 +57,15 @@ export default function App() {
         summaries={dailySummaries}
         selectedDate={selectedDate}
         averageFailureRate={averageFailureRate}
-        onSelectDate={setSelectedDate}
+        onSelectDate={handleSelectDate}
       />
-      <section className="timeline-placeholder">
-        <h2>Showing: {selectedDateLabel}</h2>
-        <p>{visibleRuns.length} processes match the active filters.</p>
-      </section>
+      <ProcessTimeline
+        runs={visibleRuns}
+        selectedProcessId={selectedProcess?.id}
+        onSelectProcess={setSelectedProcess}
+        onViewTask={setTaskModalRun}
+      />
+      <DemoTaskModal run={taskModalRun} onClose={() => setTaskModalRun(null)} />
     </main>
   );
 }

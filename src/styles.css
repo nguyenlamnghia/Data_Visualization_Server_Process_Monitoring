@@ -51,8 +51,7 @@ select {
 }
 
 .dashboard-header h1,
-.section-heading h2,
-.timeline-placeholder h2 {
+.section-heading h2 {
   margin: 0;
 }
 
@@ -62,8 +61,7 @@ select {
 }
 
 .dashboard-header p,
-.section-heading p,
-.timeline-placeholder p {
+.section-heading p {
   color: var(--muted);
   margin: 8px 0 0;
 }
@@ -144,7 +142,7 @@ select {
 }
 
 .overview-section,
-.timeline-placeholder {
+.timeline-section {
   background: var(--panel);
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -159,8 +157,7 @@ select {
   margin-bottom: 12px;
 }
 
-.section-heading h2,
-.timeline-placeholder h2 {
+.section-heading h2 {
   font-size: 20px;
   line-height: 1.25;
 }
@@ -212,4 +209,229 @@ select {
   background: var(--ink);
   border-color: var(--ink);
   color: #ffffff;
+}
+
+.showing-banner {
+  background: var(--highlight);
+  border: 1px solid #eadf7a;
+  border-radius: 999px;
+  color: #564c00;
+  font-size: 13px;
+  font-weight: 800;
+  padding: 7px 12px;
+  white-space: nowrap;
+}
+
+.timeline-frame {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  overflow-x: auto;
+  position: relative;
+}
+
+.timeline-frame svg {
+  display: block;
+  min-width: 100%;
+}
+
+.axis-label {
+  fill: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.duration-label {
+  fill: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.timeline-bar {
+  cursor: pointer;
+  outline: none;
+}
+
+.timeline-bar.failed {
+  fill: var(--danger);
+}
+
+.timeline-bar.succeeded {
+  fill: var(--success);
+}
+
+.timeline-row.selected .timeline-bar {
+  stroke: var(--ink);
+  stroke-width: 2px;
+}
+
+.timeline-label {
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  color: var(--ink);
+  cursor: pointer;
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  height: 28px;
+  line-height: 1.1;
+  overflow: hidden;
+  padding: 5px 8px;
+  text-align: right;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 100%;
+}
+
+.timeline-label:hover,
+.timeline-label:focus-visible,
+.timeline-label[aria-pressed="true"] {
+  background: #fff7f8;
+  border-color: #f1c2c5;
+  color: var(--danger);
+}
+
+.tooltip-layer {
+  max-width: 360px;
+  pointer-events: none;
+  position: absolute;
+  right: 16px;
+  top: 16px;
+  width: min(360px, calc(100% - 32px));
+  z-index: 2;
+}
+
+.process-tooltip {
+  background: #ffffff;
+  border: 1px solid #cbd5dd;
+  border-radius: 8px;
+  box-shadow: 0 16px 32px rgba(23, 33, 43, 0.16);
+  color: var(--ink);
+  font-size: 13px;
+  padding: 14px;
+  pointer-events: auto;
+}
+
+.process-tooltip header {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-bottom: 12px;
+}
+
+.process-tooltip header strong {
+  font-size: 15px;
+}
+
+.process-tooltip header span,
+.process-tooltip dt {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.process-tooltip dl {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+}
+
+.process-tooltip dl div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.process-tooltip dd {
+  margin: 0;
+  text-align: right;
+}
+
+.error-message {
+  background: #fff1f2;
+  border-left: 3px solid var(--danger);
+  color: #7b1015;
+  line-height: 1.35;
+  margin: 12px 0;
+  padding: 8px 10px;
+}
+
+.link-button {
+  background: var(--danger);
+  border: 1px solid var(--danger);
+  border-radius: 6px;
+  color: #ffffff;
+  cursor: pointer;
+  font-weight: 800;
+  min-height: 34px;
+  padding: 7px 11px;
+}
+
+.link-button:hover,
+.link-button:focus-visible {
+  background: #a80f15;
+  border-color: #a80f15;
+}
+
+.empty-state {
+  align-items: start;
+  background: #fbfcfd;
+  border: 1px dashed #b9c4ce;
+  border-radius: 8px;
+  color: var(--ink);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 28px;
+}
+
+.empty-state strong {
+  font-size: 18px;
+}
+
+.empty-state p {
+  color: var(--muted);
+  margin: 0;
+}
+
+.modal-backdrop {
+  align-items: center;
+  background: rgba(23, 33, 43, 0.48);
+  display: flex;
+  inset: 0;
+  justify-content: center;
+  padding: 24px;
+  position: fixed;
+  z-index: 10;
+}
+
+.modal {
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 24px 60px rgba(23, 33, 43, 0.28);
+  max-width: 460px;
+  padding: 24px;
+}
+
+.modal h2 {
+  font-size: 22px;
+  margin: 0 0 12px;
+}
+
+.modal p {
+  color: var(--muted);
+  line-height: 1.5;
+  margin: 0 0 18px;
+}
+
+.modal button {
+  background: var(--ink);
+  border: 1px solid var(--ink);
+  border-radius: 6px;
+  color: #ffffff;
+  cursor: pointer;
+  font-weight: 800;
+  min-height: 36px;
+  padding: 8px 13px;
 }
