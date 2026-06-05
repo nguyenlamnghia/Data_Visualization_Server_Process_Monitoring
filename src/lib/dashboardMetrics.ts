@@ -35,6 +35,9 @@ export function calculateAverageFailureRate(
   const relevant = selectedDate
     ? summaries.filter((summary) => summary.date !== selectedDate)
     : summaries;
+  if (relevant.length === 0) {
+    return 0;
+  }
   const total = relevant.reduce((sum, summary) => sum + summary.failureRate, 0);
   return Number((total / relevant.length).toFixed(2));
 }
@@ -45,13 +48,21 @@ export function getDailyKpis(
   date = '2016-03-20',
 ): DailyKpis {
   const summary = summaries.find((item) => item.date === date) ?? summaries[summaries.length - 1];
-  const failedTasks = runs.filter((run) => run.status === 'Failed').length;
+  if (!summary) {
+    return {
+      failureRate: 0,
+      failedTasks: 0,
+      delayedTasks: 0,
+      totalTasks: 0,
+      baselineFailureRate: 0,
+    };
+  }
   const delayedTasks = runs.filter(
     (run) => run.durationMinutes > run.averageDurationMinutes * 1.5,
   ).length;
   return {
     failureRate: summary.failureRate,
-    failedTasks,
+    failedTasks: summary.failedTasks,
     delayedTasks,
     totalTasks: summary.totalTasks,
     baselineFailureRate: calculateAverageFailureRate(summaries, summary.date),
