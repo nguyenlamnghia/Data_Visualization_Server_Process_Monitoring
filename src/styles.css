@@ -457,3 +457,32 @@ select {
   font-size: 12px;
   font-weight: 700;
 }
+
+@media (max-width: 1180px) {
+  body {
+    min-width: 960px;
+  }
+
+  .dashboard-header {
+    display: grid;
+  }
+
+  .dashboard-controls {
+    justify-content: start;
+  }
+
+  .kpi-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media print {
+  body {
+    min-width: 0;
+    background: #fff;
+  }
+
+  .app-shell {
+    padding: 16px;
+  }
+}

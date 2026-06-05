@@ -15,6 +15,13 @@ import {
 } from './lib/dashboardMetrics';
 import type { ProcessFilter, ProcessRun } from './types';
 
+const selectedDateFormatter = new Intl.DateTimeFormat('en-US', {
+  timeZone: 'UTC',
+  weekday: 'long',
+  month: 'long',
+  day: 'numeric',
+});
+
 export default function App() {
   const [selectedDate, setSelectedDate] = useState(DEFAULT_DATE);
   const [search, setSearch] = useState('');
@@ -44,6 +51,10 @@ export default function App() {
     () => (selectedProcess ? getProcessHistory(processHistory, selectedProcess.processName) : []),
     [selectedProcess],
   );
+  const selectedSummary = dailySummaries.find((summary) => summary.date === selectedDate);
+  const selectedDateLabel = selectedSummary
+    ? selectedDateFormatter.format(new Date(`${selectedSummary.date}T00:00:00Z`))
+    : selectedDateFormatter.format(new Date(`${selectedDate}T00:00:00Z`));
 
   function handleSelectDate(date: string) {
     setSelectedDate(date);
@@ -67,6 +78,7 @@ export default function App() {
       />
       <ProcessTimeline
         runs={visibleRuns}
+        dateLabel={selectedDateLabel}
         selectedProcessId={selectedProcess?.id}
         onSelectProcess={setSelectedProcess}
         onViewTask={setTaskModalRun}

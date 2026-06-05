@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { formatDuration, widthForDuration, xForTime } from '../lib/time';
 import type { ProcessRun, TimelineScale } from '../types';
 import { EmptyState } from './EmptyState';
@@ -6,6 +6,7 @@ import { ProcessTooltip } from './ProcessTooltip';
 
 interface ProcessTimelineProps {
   runs: ProcessRun[];
+  dateLabel: string;
   selectedProcessId?: string;
   onSelectProcess: (run: ProcessRun) => void;
   onViewTask: (run: ProcessRun) => void;
@@ -17,13 +18,6 @@ const rowHeight = 34;
 const chartTop = 36;
 const chartRightPadding = 180;
 
-const dateFormatter = new Intl.DateTimeFormat('en-US', {
-  timeZone: 'UTC',
-  weekday: 'long',
-  month: 'long',
-  day: 'numeric',
-});
-
 function hourLabel(hour: number): string {
   const normalized = hour % 24;
   const suffix = normalized >= 12 ? 'PM' : 'AM';
@@ -33,6 +27,7 @@ function hourLabel(hour: number): string {
 
 export function ProcessTimeline({
   runs,
+  dateLabel,
   selectedProcessId,
   onSelectProcess,
   onViewTask,
@@ -43,10 +38,6 @@ export function ProcessTimeline({
   const activeTooltipRun = hoveredRun ?? selectedRun;
   const height = chartTop + runs.length * rowHeight + 44;
   const width = chartLeft + scale.width + chartRightPadding;
-  const showingLabel = useMemo(() => {
-    const date = runs[0]?.date ?? '2016-03-20';
-    return dateFormatter.format(new Date(`${date}T00:00:00Z`));
-  }, [runs]);
   const axisHours = Array.from(
     { length: scale.endHour - scale.startHour + 1 },
     (_, index) => scale.startHour + index,
@@ -75,13 +66,13 @@ export function ProcessTimeline({
           <h2>Daily process timeline</h2>
           <p>Scheduled refreshes compared with actual start time and average duration.</p>
         </div>
-        <span className="showing-banner">Showing: {showingLabel}</span>
+        <span className="showing-banner">Showing: {dateLabel}</span>
       </div>
       <div className="timeline-frame">
         <svg
           viewBox={`0 0 ${width} ${height}`}
           role="img"
-          aria-label={`Daily process timeline for ${showingLabel}`}
+          aria-label={`Daily process timeline for ${dateLabel}`}
         >
           <rect
             x={chartLeft}
