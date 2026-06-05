@@ -142,7 +142,8 @@ select {
 }
 
 .overview-section,
-.timeline-section {
+.timeline-section,
+.history-section {
   background: var(--panel);
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -244,6 +245,10 @@ select {
   fill: var(--muted);
   font-size: 12px;
   font-weight: 700;
+}
+
+.duration-label.failed {
+  fill: var(--danger);
 }
 
 .timeline-bar {
@@ -434,4 +439,21 @@ select {
   font-weight: 800;
   min-height: 36px;
   padding: 8px 13px;
+}
+
+.history-frame {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  overflow-x: auto;
+}
+
+.history-frame svg {
+  display: block;
+  min-width: 100%;
+}
+
+.history-date {
+  fill: #33414c;
+  font-size: 12px;
+  font-weight: 700;
 }

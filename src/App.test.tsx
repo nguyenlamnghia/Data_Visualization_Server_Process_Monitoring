@@ -81,4 +81,12 @@ describe('App', () => {
     await user.click(screen.getByRole('button', { name: /View Refresh Task/i }));
     expect(screen.getByRole('dialog')).toHaveTextContent(/Simulated server task/i);
   });
+
+  it('opens a one-month process history after selecting a process', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.click(screen.getByRole('button', { name: /Epic Radiant Orders/i }));
+    expect(screen.getByRole('heading', { name: /Epic Radiant Orders: summary/i })).toBeInTheDocument();
+    expect(screen.getByText(/7 failures in the previous month/i)).toBeInTheDocument();
+  });
 });

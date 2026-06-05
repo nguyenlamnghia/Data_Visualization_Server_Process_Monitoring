@@ -3,12 +3,14 @@ import { DashboardHeader } from './components/DashboardHeader';
 import { DemoTaskModal } from './components/DemoTaskModal';
 import { FailureOverview } from './components/FailureOverview';
 import { KpiStrip } from './components/KpiStrip';
+import { ProcessHistory } from './components/ProcessHistory';
 import { ProcessTimeline } from './components/ProcessTimeline';
-import { DEFAULT_DATE, dailySummaries, processRuns } from './data/mockServerData';
+import { DEFAULT_DATE, dailySummaries, processHistory, processRuns } from './data/mockServerData';
 import {
   calculateAverageFailureRate,
   filterProcessRuns,
   getDailyKpis,
+  getProcessHistory,
   getRunsForDate,
 } from './lib/dashboardMetrics';
 import type { ProcessFilter, ProcessRun } from './types';
@@ -38,6 +40,10 @@ export default function App() {
     () => calculateAverageFailureRate(dailySummaries, selectedDate),
     [selectedDate],
   );
+  const selectedHistory = useMemo(
+    () => (selectedProcess ? getProcessHistory(processHistory, selectedProcess.processName) : []),
+    [selectedProcess],
+  );
 
   function handleSelectDate(date: string) {
     setSelectedDate(date);
@@ -65,6 +71,9 @@ export default function App() {
         onSelectProcess={setSelectedProcess}
         onViewTask={setTaskModalRun}
       />
+      {selectedProcess ? (
+        <ProcessHistory processName={selectedProcess.processName} runs={selectedHistory} />
+      ) : null}
       <DemoTaskModal run={taskModalRun} onClose={() => setTaskModalRun(null)} />
     </main>
   );
