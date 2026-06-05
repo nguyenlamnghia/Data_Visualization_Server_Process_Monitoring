@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { formatDuration, formatTimeLabel, minutesFromStart, xForTime } from './time';
+import { formatDuration, formatTimeLabel, minutesFromStart, widthForDuration, xForTime } from './time';
 
 describe('time helpers', () => {
   it('formats duration as h:mm:ss', () => {
@@ -17,7 +17,20 @@ describe('time helpers', () => {
     expect(minutesFromStart('2016-03-21T02:00:00', 5)).toBe(1260);
   });
 
+  it('maps timestamps at the timeline start boundary', () => {
+    expect(minutesFromStart('2016-03-20T05:00:00', 5)).toBe(0);
+    expect(minutesFromStart('2016-03-20T04:59:00', 5)).toBe(1439);
+  });
+
   it('converts time to x position', () => {
     expect(xForTime('2016-03-20T17:00:00', { startHour: 5, endHour: 32, width: 1080 })).toBe(480);
+  });
+
+  it('converts duration to timeline width', () => {
+    expect(widthForDuration(60, { startHour: 5, endHour: 32, width: 1080 })).toBe(40);
+  });
+
+  it('enforces a minimum visible duration width', () => {
+    expect(widthForDuration(0.1, { startHour: 5, endHour: 32, width: 1080 })).toBe(3);
   });
 });
