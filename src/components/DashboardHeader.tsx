@@ -39,12 +39,6 @@ export function DashboardHeader({
             <option value="All">All</option>
           </select>
         </label>
-        <label>
-          started_at (EST)
-          <select value="Last 14 days" disabled>
-            <option>Last 14 days</option>
-          </select>
-        </label>
       </div>
     </header>
   );

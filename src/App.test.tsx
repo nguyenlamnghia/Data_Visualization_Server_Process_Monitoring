@@ -15,7 +15,7 @@ describe('App', () => {
     ).toBeInTheDocument();
     expect(screen.getByText('Failure Rate').parentElement).toHaveTextContent('6.7%');
     expect(screen.getByText(/Failed Tasks/i)).toBeInTheDocument();
-    expect(screen.getByText(/Last 14 days/i)).toBeInTheDocument();
+    expect(screen.queryByText(/Last 14 days/i)).not.toBeInTheDocument();
   });
 
   it('filters the selected date timeline when search text has no matches', async () => {
