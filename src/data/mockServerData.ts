@@ -1,364 +1,571 @@
-import type { DailyFailureSummary, ProcessHistoryRun, ProcessRun } from '../types';
+import type {
+  DailyFailureSummary,
+  ProcessHistoryRun,
+  ProcessRun,
+  ProcessStatus,
+  ProcessType,
+} from '../types';
 
 export const DEFAULT_DATE = '2016-03-20';
 
-export const dailySummaries: DailyFailureSummary[] = [
-  { date: '2016-03-07', label: 'Mar 7', failureRate: 1.2, failedTasks: 1, totalTasks: 83 },
-  { date: '2016-03-08', label: 'Mar 8', failureRate: 2.3, failedTasks: 2, totalTasks: 87 },
-  { date: '2016-03-09', label: 'Mar 9', failureRate: 2.6, failedTasks: 2, totalTasks: 77 },
-  { date: '2016-03-10', label: 'Mar 10', failureRate: 3.1, failedTasks: 3, totalTasks: 97 },
-  { date: '2016-03-11', label: 'Mar 11', failureRate: 2.4, failedTasks: 2, totalTasks: 83 },
-  { date: '2016-03-12', label: 'Mar 12', failureRate: 2.8, failedTasks: 2, totalTasks: 71 },
-  { date: '2016-03-13', label: 'Mar 13', failureRate: 7.1, failedTasks: 5, totalTasks: 70 },
-  { date: '2016-03-14', label: 'Mar 14', failureRate: 1.9, failedTasks: 1, totalTasks: 53 },
-  { date: '2016-03-15', label: 'Mar 15', failureRate: 2.2, failedTasks: 2, totalTasks: 91 },
-  { date: '2016-03-16', label: 'Mar 16', failureRate: 2.5, failedTasks: 2, totalTasks: 80 },
-  { date: '2016-03-17', label: 'Mar 17', failureRate: 2.7, failedTasks: 2, totalTasks: 74 },
-  { date: '2016-03-18', label: 'Mar 18', failureRate: 2.9, failedTasks: 3, totalTasks: 103 },
-  { date: '2016-03-19', label: 'Mar 19', failureRate: 2.4, failedTasks: 2, totalTasks: 83 },
-  { date: '2016-03-20', label: 'Mar 20', failureRate: 6.7, failedTasks: 4, totalTasks: 60 },
-];
+interface ProcessTemplate {
+  slug: string;
+  processName: string;
+  type: ProcessType;
+  scheduledTime: string;
+  averageDurationMinutes: number;
+}
 
-export const processRuns: ProcessRun[] = [
+interface RunOverride {
+  status?: ProcessStatus;
+  delayMinutes?: number;
+  durationMinutes?: number;
+  errorMessage?: string;
+}
+
+interface DaySpec {
+  date: string;
+  count: number;
+  overrides: Record<string, RunOverride>;
+}
+
+interface HistorySpec {
+  processName: string;
+  slug: string;
+  averageDurationMinutes: number;
+  startTime: string;
+  failedDates: string[];
+  durationOverrides?: Record<string, number>;
+  startOverrides?: Record<string, string>;
+}
+
+const processCatalog: ProcessTemplate[] = [
   {
-    id: 'run-20160320-radiant-orders',
+    slug: 'radiant-orders',
     processName: 'Epic Radiant Orders',
     type: 'Datasource',
-    date: '2016-03-20',
-    status: 'Failed',
-    scheduledStart: '2016-03-20T10:30:00',
-    actualStart: '2016-03-20T16:55:00',
-    durationMinutes: 414.93,
+    scheduledTime: '10:30',
     averageDurationMinutes: 124.93,
-    errorMessage:
-      'Tableau Data Engine SQL error: [EpicCaboodle].[RadiantOrders] query timed out while waiting for tempdb sort workspace.',
   },
   {
-    id: 'run-20160320-asap-events',
+    slug: 'asap-events',
     processName: 'Epic ASAP Events',
     type: 'Datasource',
-    date: '2016-03-20',
-    status: 'Failed',
-    scheduledStart: '2016-03-20T11:00:00',
-    actualStart: '2016-03-20T12:12:00',
-    durationMinutes: 98.4,
+    scheduledTime: '11:00',
     averageDurationMinutes: 45.2,
-    errorMessage:
-      'SQL Server exception: lock request timeout while refreshing extract for emergency department events.',
   },
   {
-    id: 'run-20160320-medication-charges',
+    slug: 'medication-charges',
     processName: 'Epic Medication Charges',
     type: 'Workbook',
-    date: '2016-03-20',
-    status: 'Failed',
-    scheduledStart: '2016-03-20T12:00:00',
-    actualStart: '2016-03-20T12:06:00',
-    durationMinutes: 76.3,
+    scheduledTime: '12:00',
     averageDurationMinutes: 41.5,
-    errorMessage:
-      'Tableau backgrounder failed: extract refresh returned duplicate medication charge keys from Clarity.',
   },
   {
-    id: 'run-20160320-claim-aging',
+    slug: 'claim-aging',
     processName: 'Revenue Cycle Claim Aging',
     type: 'Datasource',
-    date: '2016-03-20',
-    status: 'Failed',
-    scheduledStart: '2016-03-20T13:30:00',
-    actualStart: '2016-03-20T13:41:00',
-    durationMinutes: 65.8,
+    scheduledTime: '13:30',
     averageDurationMinutes: 38.0,
-    errorMessage:
-      'ODBC SQL error: claim aging extract could not complete before payer remittance staging closed.',
   },
   {
-    id: 'run-20160320-mychart-status',
+    slug: 'mychart-status',
     processName: 'Epic MyChart Status',
     type: 'Workbook',
-    date: '2016-03-20',
-    status: 'Succeeded',
-    scheduledStart: '2016-03-20T09:00:00',
-    actualStart: '2016-03-20T09:02:00',
-    durationMinutes: 21.4,
+    scheduledTime: '09:00',
     averageDurationMinutes: 18.8,
   },
   {
-    id: 'run-20160320-bed-board',
+    slug: 'bed-board',
     processName: 'Epic Bed Board Census',
     type: 'Datasource',
-    date: '2016-03-20',
-    status: 'Succeeded',
-    scheduledStart: '2016-03-20T07:00:00',
-    actualStart: '2016-03-20T07:03:00',
-    durationMinutes: 16.2,
+    scheduledTime: '07:00',
     averageDurationMinutes: 15.9,
   },
   {
-    id: 'run-20160320-surgical-case-volume',
+    slug: 'surgical-case-volume',
     processName: 'Surgical Case Volume',
     type: 'Workbook',
-    date: '2016-03-20',
-    status: 'Succeeded',
-    scheduledStart: '2016-03-20T08:15:00',
-    actualStart: '2016-03-20T08:17:00',
-    durationMinutes: 28.7,
+    scheduledTime: '08:15',
     averageDurationMinutes: 30.1,
   },
   {
-    id: 'run-20160320-sepsis-warning',
+    slug: 'sepsis-warning',
     processName: 'Sepsis Early Warning',
     type: 'Workbook',
-    date: '2016-03-20',
-    status: 'Succeeded',
-    scheduledStart: '2016-03-20T08:45:00',
-    actualStart: '2016-03-20T08:46:00',
-    durationMinutes: 18.9,
+    scheduledTime: '08:45',
     averageDurationMinutes: 17.5,
   },
   {
-    id: 'run-20160320-refill-queue',
+    slug: 'refill-queue',
     processName: 'Pharmacy Refill Queue',
     type: 'Datasource',
-    date: '2016-03-20',
-    status: 'Succeeded',
-    scheduledStart: '2016-03-20T09:30:00',
-    actualStart: '2016-03-20T09:31:00',
-    durationMinutes: 22.6,
+    scheduledTime: '09:30',
     averageDurationMinutes: 21.0,
   },
   {
-    id: 'run-20160320-lab-turnaround',
+    slug: 'lab-turnaround',
     processName: 'Lab Result Turnaround',
     type: 'Workbook',
-    date: '2016-03-20',
-    status: 'Succeeded',
-    scheduledStart: '2016-03-20T10:00:00',
-    actualStart: '2016-03-20T10:02:00',
-    durationMinutes: 19.8,
+    scheduledTime: '10:00',
     averageDurationMinutes: 20.4,
   },
   {
-    id: 'run-20160320-encounter-arrival',
+    slug: 'encounter-arrival',
     processName: 'Encounter Arrival Feed',
     type: 'Datasource',
-    date: '2016-03-20',
-    status: 'Succeeded',
-    scheduledStart: '2016-03-20T14:00:00',
-    actualStart: '2016-03-20T14:05:00',
-    durationMinutes: 34.9,
+    scheduledTime: '14:00',
     averageDurationMinutes: 29.6,
   },
   {
-    id: 'run-20160320-access-wait-times',
+    slug: 'access-wait-times',
     processName: 'Patient Access Wait Times',
     type: 'Workbook',
-    date: '2016-03-20',
-    status: 'Succeeded',
-    scheduledStart: '2016-03-20T15:00:00',
-    actualStart: '2016-03-20T15:04:00',
-    durationMinutes: 26.1,
+    scheduledTime: '15:00',
     averageDurationMinutes: 24.7,
+  },
+  {
+    slug: 'inpatient-census',
+    processName: 'Inpatient Census Snapshot',
+    type: 'Datasource',
+    scheduledTime: '05:45',
+    averageDurationMinutes: 19.6,
+  },
+  {
+    slug: 'or-utilization',
+    processName: 'OR Utilization Summary',
+    type: 'Workbook',
+    scheduledTime: '06:30',
+    averageDurationMinutes: 34.2,
+  },
+  {
+    slug: 'claims-denial',
+    processName: 'Claims Denial Worklist',
+    type: 'Datasource',
+    scheduledTime: '12:45',
+    averageDurationMinutes: 32.8,
+  },
+  {
+    slug: 'radiology-volume',
+    processName: 'Radiology Volume Monitor',
+    type: 'Workbook',
+    scheduledTime: '16:00',
+    averageDurationMinutes: 27.4,
+  },
+  {
+    slug: 'ed-throughput',
+    processName: 'ED Throughput Dashboard',
+    type: 'Workbook',
+    scheduledTime: '17:15',
+    averageDurationMinutes: 36.5,
+  },
+  {
+    slug: 'supply-par',
+    processName: 'Supply PAR Replenishment',
+    type: 'Datasource',
+    scheduledTime: '18:30',
+    averageDurationMinutes: 23.9,
+  },
+  {
+    slug: 'quality-core-measures',
+    processName: 'Quality Core Measures',
+    type: 'Workbook',
+    scheduledTime: '19:00',
+    averageDurationMinutes: 44.6,
+  },
+  {
+    slug: 'readmission-risk',
+    processName: 'Readmission Risk Scores',
+    type: 'Datasource',
+    scheduledTime: '20:30',
+    averageDurationMinutes: 52.3,
+  },
+  {
+    slug: 'ambulatory-visits',
+    processName: 'Ambulatory Visit Volume',
+    type: 'Workbook',
+    scheduledTime: '21:15',
+    averageDurationMinutes: 31.7,
+  },
+  {
+    slug: 'provider-productivity',
+    processName: 'Provider Productivity Rollup',
+    type: 'Datasource',
+    scheduledTime: '22:00',
+    averageDurationMinutes: 40.5,
+  },
+  {
+    slug: 'infection-surveillance',
+    processName: 'Infection Surveillance Feed',
+    type: 'Datasource',
+    scheduledTime: '23:15',
+    averageDurationMinutes: 48.2,
+  },
+  {
+    slug: 'payer-contracts',
+    processName: 'Payer Contract Variance',
+    type: 'Workbook',
+    scheduledTime: '23:45',
+    averageDurationMinutes: 35.8,
   },
 ];
 
-export const processHistory: ProcessHistoryRun[] = [
+const daySpecs: DaySpec[] = [
+  { date: '2016-03-07', count: 20, overrides: {} },
   {
-    id: 'history-radiant-20160222',
-    processName: 'Epic Radiant Orders',
-    date: '2016-02-22',
-    status: 'Succeeded',
-    actualStart: '2016-02-22T10:34:00',
-    durationMinutes: 116.2,
-    averageDurationMinutes: 123.6,
-  },
-  {
-    id: 'history-radiant-20160223',
-    processName: 'Epic Radiant Orders',
-    date: '2016-02-23',
-    status: 'Succeeded',
-    actualStart: '2016-02-23T10:32:00',
-    durationMinutes: 121.7,
-    averageDurationMinutes: 123.4,
-  },
-  {
-    id: 'history-radiant-20160224',
-    processName: 'Epic Radiant Orders',
-    date: '2016-02-24',
-    status: 'Failed',
-    actualStart: '2016-02-24T10:35:00',
-    durationMinutes: 188.4,
-    averageDurationMinutes: 123.9,
-  },
-  {
-    id: 'history-radiant-20160225',
-    processName: 'Epic Radiant Orders',
-    date: '2016-02-25',
-    status: 'Succeeded',
-    actualStart: '2016-02-25T10:31:00',
-    durationMinutes: 119.5,
-    averageDurationMinutes: 124.0,
-  },
-  {
-    id: 'history-radiant-20160226',
-    processName: 'Epic Radiant Orders',
-    date: '2016-02-26',
-    status: 'Succeeded',
-    actualStart: '2016-02-26T10:30:00',
-    durationMinutes: 124.4,
-    averageDurationMinutes: 124.2,
-  },
-  {
-    id: 'history-radiant-20160229',
-    processName: 'Epic Radiant Orders',
-    date: '2016-02-29',
-    status: 'Succeeded',
-    actualStart: '2016-02-29T10:33:00',
-    durationMinutes: 122.6,
-    averageDurationMinutes: 124.0,
-  },
-  {
-    id: 'history-radiant-20160301',
-    processName: 'Epic Radiant Orders',
-    date: '2016-03-01',
-    status: 'Failed',
-    actualStart: '2016-03-01T10:36:00',
-    durationMinutes: 202.1,
-    averageDurationMinutes: 124.5,
-  },
-  {
-    id: 'history-radiant-20160302',
-    processName: 'Epic Radiant Orders',
-    date: '2016-03-02',
-    status: 'Succeeded',
-    actualStart: '2016-03-02T10:33:00',
-    durationMinutes: 125.8,
-    averageDurationMinutes: 124.6,
-  },
-  {
-    id: 'history-radiant-20160303',
-    processName: 'Epic Radiant Orders',
-    date: '2016-03-03',
-    status: 'Succeeded',
-    actualStart: '2016-03-03T10:32:00',
-    durationMinutes: 118.9,
-    averageDurationMinutes: 124.3,
-  },
-  {
-    id: 'history-radiant-20160304',
-    processName: 'Epic Radiant Orders',
-    date: '2016-03-04',
-    status: 'Failed',
-    actualStart: '2016-03-04T10:39:00',
-    durationMinutes: 194.6,
-    averageDurationMinutes: 124.4,
-  },
-  {
-    id: 'history-radiant-20160307',
-    processName: 'Epic Radiant Orders',
-    date: '2016-03-07',
-    status: 'Succeeded',
-    actualStart: '2016-03-07T10:34:00',
-    durationMinutes: 120.2,
-    averageDurationMinutes: 124.1,
-  },
-  {
-    id: 'history-radiant-20160308',
-    processName: 'Epic Radiant Orders',
     date: '2016-03-08',
-    status: 'Succeeded',
-    actualStart: '2016-03-08T10:31:00',
-    durationMinutes: 123.7,
-    averageDurationMinutes: 124.1,
+    count: 21,
+    overrides: {
+      'claim-aging': {
+        status: 'Failed',
+        delayMinutes: 18,
+        durationMinutes: 74.2,
+        errorMessage:
+          'ODBC SQL error: payer remittance staging table was unavailable during claim aging refresh.',
+      },
+    },
   },
   {
-    id: 'history-radiant-20160309',
-    processName: 'Epic Radiant Orders',
     date: '2016-03-09',
-    status: 'Failed',
-    actualStart: '2016-03-09T10:37:00',
-    durationMinutes: 210.8,
-    averageDurationMinutes: 124.6,
+    count: 22,
+    overrides: {
+      'radiant-orders': {
+        status: 'Failed',
+        delayMinutes: 7,
+        durationMinutes: 210.8,
+        errorMessage:
+          'Tableau Data Engine SQL error: Radiant Orders extract exceeded tempdb workspace limit.',
+      },
+    },
   },
   {
-    id: 'history-radiant-20160310',
-    processName: 'Epic Radiant Orders',
     date: '2016-03-10',
-    status: 'Succeeded',
-    actualStart: '2016-03-10T10:33:00',
-    durationMinutes: 126.5,
-    averageDurationMinutes: 124.7,
+    count: 20,
+    overrides: {
+      'readmission-risk': {
+        delayMinutes: 32,
+        durationMinutes: 87.4,
+      },
+    },
   },
   {
-    id: 'history-radiant-20160311',
-    processName: 'Epic Radiant Orders',
     date: '2016-03-11',
-    status: 'Succeeded',
-    actualStart: '2016-03-11T10:32:00',
-    durationMinutes: 117.8,
-    averageDurationMinutes: 124.5,
+    count: 19,
+    overrides: {
+      'medication-charges': {
+        status: 'Failed',
+        delayMinutes: 8,
+        durationMinutes: 91.3,
+        errorMessage:
+          'Tableau backgrounder failed: duplicate medication charge keys returned from Clarity.',
+      },
+    },
   },
   {
-    id: 'history-radiant-20160312',
-    processName: 'Epic Radiant Orders',
     date: '2016-03-12',
-    status: 'Failed',
-    actualStart: '2016-03-12T10:41:00',
-    durationMinutes: 226.9,
-    averageDurationMinutes: 124.8,
+    count: 21,
+    overrides: {
+      'radiant-orders': {
+        status: 'Failed',
+        delayMinutes: 11,
+        durationMinutes: 226.9,
+        errorMessage:
+          'Tableau Data Engine SQL error: Radiant Orders query timed out during extract refresh.',
+      },
+    },
   },
   {
-    id: 'history-radiant-20160314',
-    processName: 'Epic Radiant Orders',
-    date: '2016-03-14',
-    status: 'Succeeded',
-    actualStart: '2016-03-14T10:34:00',
-    durationMinutes: 128.1,
-    averageDurationMinutes: 124.9,
+    date: '2016-03-13',
+    count: 22,
+    overrides: {
+      'asap-events': {
+        status: 'Failed',
+        delayMinutes: 64,
+        durationMinutes: 118.6,
+        errorMessage:
+          'SQL Server exception: lock request timeout while refreshing emergency department events.',
+      },
+      'medication-charges': {
+        status: 'Failed',
+        delayMinutes: 19,
+        durationMinutes: 84.1,
+        errorMessage:
+          'Tableau backgrounder failed: medication charge extract returned duplicate keys.',
+      },
+      'lab-turnaround': {
+        status: 'Failed',
+        delayMinutes: 22,
+        durationMinutes: 69.5,
+        errorMessage:
+          'Lab turnaround workbook failed after the LIS extract returned an incomplete batch.',
+      },
+    },
   },
+  { date: '2016-03-14', count: 20, overrides: {} },
   {
-    id: 'history-radiant-20160315',
-    processName: 'Epic Radiant Orders',
     date: '2016-03-15',
-    status: 'Succeeded',
-    actualStart: '2016-03-15T10:31:00',
-    durationMinutes: 121.4,
-    averageDurationMinutes: 124.8,
+    count: 21,
+    overrides: {
+      'asap-events': {
+        status: 'Failed',
+        delayMinutes: 16,
+        durationMinutes: 99.2,
+        errorMessage: 'SQL Server exception: emergency department feed lock timeout.',
+      },
+    },
   },
   {
-    id: 'history-radiant-20160316',
-    processName: 'Epic Radiant Orders',
     date: '2016-03-16',
-    status: 'Failed',
-    actualStart: '2016-03-16T10:38:00',
-    durationMinutes: 198.3,
-    averageDurationMinutes: 124.9,
+    count: 22,
+    overrides: {
+      'radiant-orders': {
+        status: 'Failed',
+        delayMinutes: 8,
+        durationMinutes: 198.3,
+        errorMessage:
+          'Tableau Data Engine SQL error: Radiant Orders query timed out during tempdb sort.',
+      },
+    },
   },
   {
-    id: 'history-radiant-20160317',
-    processName: 'Epic Radiant Orders',
     date: '2016-03-17',
-    status: 'Succeeded',
-    actualStart: '2016-03-17T10:34:00',
-    durationMinutes: 127.3,
-    averageDurationMinutes: 124.9,
+    count: 20,
+    overrides: {
+      'provider-productivity': {
+        delayMinutes: 25,
+        durationMinutes: 72.6,
+      },
+    },
   },
   {
-    id: 'history-radiant-20160318',
-    processName: 'Epic Radiant Orders',
     date: '2016-03-18',
-    status: 'Succeeded',
-    actualStart: '2016-03-18T10:35:00',
-    durationMinutes: 130.6,
-    averageDurationMinutes: 124.9,
+    count: 21,
+    overrides: {
+      'claim-aging': {
+        status: 'Failed',
+        delayMinutes: 12,
+        durationMinutes: 70.4,
+        errorMessage:
+          'ODBC SQL error: claim aging extract could not complete before remittance staging closed.',
+      },
+    },
   },
+  { date: '2016-03-19', count: 20, overrides: {} },
   {
-    id: 'history-radiant-20160320',
-    processName: 'Epic Radiant Orders',
     date: '2016-03-20',
-    status: 'Failed',
-    actualStart: '2016-03-20T16:55:00',
-    durationMinutes: 414.93,
-    averageDurationMinutes: 124.93,
+    count: 22,
+    overrides: {
+      'radiant-orders': {
+        status: 'Failed',
+        delayMinutes: 385,
+        durationMinutes: 414.93,
+        errorMessage:
+          'Tableau Data Engine SQL error: [EpicCaboodle].[RadiantOrders] query timed out while waiting for tempdb sort workspace.',
+      },
+      'claim-aging': {
+        status: 'Failed',
+        delayMinutes: 11,
+        durationMinutes: 65.8,
+        errorMessage:
+          'ODBC SQL error: claim aging extract could not complete before payer remittance staging closed.',
+      },
+    },
   },
 ];
+
+const historyDates = [
+  '2016-02-22',
+  '2016-02-24',
+  '2016-02-25',
+  '2016-02-26',
+  '2016-02-29',
+  '2016-03-01',
+  '2016-03-02',
+  '2016-03-03',
+  '2016-03-04',
+  '2016-03-07',
+  '2016-03-08',
+  '2016-03-09',
+  '2016-03-10',
+  '2016-03-11',
+  '2016-03-12',
+  '2016-03-13',
+  '2016-03-14',
+  '2016-03-15',
+  '2016-03-16',
+  '2016-03-17',
+  '2016-03-18',
+  '2016-03-20',
+];
+
+const historySpecs: HistorySpec[] = [
+  {
+    processName: 'Epic Radiant Orders',
+    slug: 'radiant-orders',
+    averageDurationMinutes: 124.93,
+    startTime: '10:34',
+    failedDates: [
+      '2016-02-24',
+      '2016-03-01',
+      '2016-03-04',
+      '2016-03-09',
+      '2016-03-12',
+      '2016-03-16',
+      '2016-03-20',
+    ],
+    durationOverrides: {
+      '2016-02-24': 188.4,
+      '2016-03-01': 202.1,
+      '2016-03-04': 194.6,
+      '2016-03-09': 210.8,
+      '2016-03-12': 226.9,
+      '2016-03-16': 198.3,
+      '2016-03-20': 414.93,
+    },
+    startOverrides: { '2016-03-20': '16:55' },
+  },
+  {
+    processName: 'Epic ASAP Events',
+    slug: 'asap-events',
+    averageDurationMinutes: 45.2,
+    startTime: '11:04',
+    failedDates: ['2016-03-13', '2016-03-15'],
+    durationOverrides: { '2016-03-13': 118.6, '2016-03-15': 99.2 },
+  },
+  {
+    processName: 'Epic Medication Charges',
+    slug: 'medication-charges',
+    averageDurationMinutes: 41.5,
+    startTime: '12:05',
+    failedDates: ['2016-03-11', '2016-03-13'],
+    durationOverrides: { '2016-03-11': 91.3, '2016-03-13': 84.1 },
+  },
+  {
+    processName: 'Revenue Cycle Claim Aging',
+    slug: 'claim-aging',
+    averageDurationMinutes: 38.0,
+    startTime: '13:36',
+    failedDates: ['2016-03-08', '2016-03-18', '2016-03-20'],
+    durationOverrides: { '2016-03-08': 74.2, '2016-03-18': 70.4, '2016-03-20': 65.8 },
+    startOverrides: { '2016-03-20': '13:41' },
+  },
+  {
+    processName: 'Epic MyChart Status',
+    slug: 'mychart-status',
+    averageDurationMinutes: 18.8,
+    startTime: '09:02',
+    failedDates: [],
+  },
+  {
+    processName: 'Epic Bed Board Census',
+    slug: 'bed-board',
+    averageDurationMinutes: 15.9,
+    startTime: '07:03',
+    failedDates: [],
+  },
+  {
+    processName: 'Lab Result Turnaround',
+    slug: 'lab-turnaround',
+    averageDurationMinutes: 20.4,
+    startTime: '10:02',
+    failedDates: ['2016-03-13'],
+    durationOverrides: { '2016-03-13': 69.5 },
+  },
+];
+
+function addMinutes(date: string, time: string, minutes: number): string {
+  const [hourPart, minutePart] = time.split(':');
+  const totalMinutes = Number(hourPart) * 60 + Number(minutePart) + minutes;
+  const dayOffset = Math.floor(totalMinutes / 1440);
+  const normalizedMinutes = ((totalMinutes % 1440) + 1440) % 1440;
+  const hour = Math.floor(normalizedMinutes / 60);
+  const minute = normalizedMinutes % 60;
+  const timestampDate = new Date(`${date}T00:00:00Z`);
+  timestampDate.setUTCDate(timestampDate.getUTCDate() + dayOffset);
+  const datePart = timestampDate.toISOString().slice(0, 10);
+  return `${datePart}T${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}:00`;
+}
+
+function labelForDate(date: string): string {
+  const [, , day] = date.split('-');
+  return `Mar ${Number(day)}`;
+}
+
+function roundedFailureRate(failedTasks: number, totalTasks: number): number {
+  return Number(((failedTasks / totalTasks) * 100).toFixed(1));
+}
+
+function buildRun(day: DaySpec, template: ProcessTemplate, index: number): ProcessRun {
+  const override = day.overrides[template.slug];
+  const status = override?.status ?? 'Succeeded';
+  const daySeed = Number(day.date.slice(-2));
+  const baseDelay = (daySeed + index * 3) % 8;
+  const delayMinutes = override?.delayMinutes ?? baseDelay;
+  const durationVariance = ((daySeed + index) % 5) - 2;
+  const defaultDuration = Number(
+    Math.max(5, template.averageDurationMinutes + durationVariance * 2.4).toFixed(1),
+  );
+  const durationMinutes = override?.durationMinutes ?? defaultDuration;
+
+  return {
+    id: `run-${day.date.replaceAll('-', '')}-${template.slug}`,
+    processName: template.processName,
+    type: template.type,
+    date: day.date,
+    status,
+    scheduledStart: addMinutes(day.date, template.scheduledTime, 0),
+    actualStart: addMinutes(day.date, template.scheduledTime, delayMinutes),
+    durationMinutes,
+    averageDurationMinutes: template.averageDurationMinutes,
+    ...(override?.errorMessage ? { errorMessage: override.errorMessage } : {}),
+  };
+}
+
+function buildProcessRuns(): ProcessRun[] {
+  return daySpecs.flatMap((day) =>
+    processCatalog.slice(0, day.count).map((template, index) => buildRun(day, template, index)),
+  );
+}
+
+function buildDailySummaries(runs: ProcessRun[]): DailyFailureSummary[] {
+  return daySpecs.map((day) => {
+    const dayRuns = runs.filter((run) => run.date === day.date);
+    const failedTasks = dayRuns.filter((run) => run.status === 'Failed').length;
+    return {
+      date: day.date,
+      label: labelForDate(day.date),
+      failureRate: roundedFailureRate(failedTasks, dayRuns.length),
+      failedTasks,
+      totalTasks: dayRuns.length,
+    };
+  });
+}
+
+function buildHistory(spec: HistorySpec): ProcessHistoryRun[] {
+  return historyDates.map((date, index) => {
+    const failed = spec.failedDates.includes(date);
+    const durationVariance = ((index % 5) - 2) * 1.7;
+    const durationMinutes =
+      spec.durationOverrides?.[date] ??
+      Number(Math.max(5, spec.averageDurationMinutes + durationVariance).toFixed(1));
+    const actualStart = spec.startOverrides?.[date]
+      ? addMinutes(date, spec.startOverrides[date], 0)
+      : addMinutes(date, spec.startTime, index % 4);
+
+    return {
+      id: `history-${spec.slug}-${date.replaceAll('-', '')}`,
+      processName: spec.processName,
+      date,
+      status: failed ? 'Failed' : 'Succeeded',
+      actualStart,
+      durationMinutes,
+      averageDurationMinutes: spec.averageDurationMinutes,
+    };
+  });
+}
+
+export const processRuns: ProcessRun[] = buildProcessRuns();
+
+export const dailySummaries: DailyFailureSummary[] = buildDailySummaries(processRuns);
+
+export const processHistory: ProcessHistoryRun[] = historySpecs.flatMap(buildHistory);

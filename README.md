@@ -9,9 +9,11 @@ The dashboard answers the morning administrator question: did overnight Tableau 
 Default demo state:
 
 - Date: Sunday, March 20, 2016
-- Failure rate: 6.7%
+- Failure rate: 9.1%
 - Main failed process: Epic Radiant Orders
 - Interaction path: overview -> daily timeline -> process detail history
+
+The local mock dataset includes detailed process rows for every day in the 14-day overview, plus one-month history for the main demo processes.
 
 ## Run
 

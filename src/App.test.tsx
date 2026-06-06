@@ -13,7 +13,7 @@ describe('App', () => {
     expect(
       screen.getByRole('heading', { name: /server process monitoring/i }),
     ).toBeInTheDocument();
-    expect(screen.getByText('Failure Rate').parentElement).toHaveTextContent('6.7%');
+    expect(screen.getByText('Failure Rate').parentElement).toHaveTextContent('9.1%');
     expect(screen.getByText(/Failed Tasks/i)).toBeInTheDocument();
     expect(screen.queryByText(/Last 14 days/i)).not.toBeInTheDocument();
   });
@@ -51,19 +51,20 @@ describe('App', () => {
 
     render(<App />);
 
-    await user.click(screen.getByRole('button', { name: '7 Mar, 1.2% failed' }));
+    await user.click(screen.getByRole('button', { name: '7 Mar, 0.0% failed' }));
 
-    expect(screen.getByRole('button', { name: '7 Mar, 1.2% failed' })).toHaveAttribute(
+    expect(screen.getByRole('button', { name: '7 Mar, 0.0% failed' })).toHaveAttribute(
       'aria-pressed',
       'true',
     );
-    expect(screen.getByText('Failure Rate').parentElement).toHaveTextContent('1.2%');
-    expect(screen.getByText('14-Day Avg').parentElement).toHaveTextContent('3.2%');
+    expect(screen.getByText('Failure Rate').parentElement).toHaveTextContent('0.0%');
+    expect(screen.getByText('14-Day Avg').parentElement).toHaveTextContent('4.3%');
     expect(
       within(screen.getByRole('region', { name: /14-day failure overview/i })).getByText(
-        'Avg 3.2%',
+        'Avg 4.3%',
       ),
     ).toBeInTheDocument();
+    expect(screen.queryByText(/No processes match the current filters/i)).not.toBeInTheDocument();
   });
 
   it('renders a single overview block with a clickable column per day', () => {
@@ -73,8 +74,21 @@ describe('App', () => {
     const dayButtons = within(region).getAllByRole('button');
     expect(dayButtons).toHaveLength(14);
     expect(
-      within(region).getByRole('button', { name: '20 Mar, 6.7% failed' }),
+      within(region).getByRole('button', { name: '20 Mar, 9.1% failed' }),
     ).toBeInTheDocument();
+  });
+
+  it('shows populated process rows when selecting the March 13 secondary outlier', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.selectOptions(screen.getByLabelText(/select type/i), 'All');
+    await user.click(screen.getByRole('button', { name: '13 Mar, 13.6% failed' }));
+
+    expect(screen.getByText(/Epic ASAP Events/i)).toBeInTheDocument();
+    expect(screen.getByText(/Epic Medication Charges/i)).toBeInTheDocument();
+    expect(screen.getByText(/Lab Result Turnaround/i)).toBeInTheDocument();
+    expect(screen.queryByText(/No processes match the current filters/i)).not.toBeInTheDocument();
   });
 
   it('filters processes by search text', async () => {
@@ -99,5 +113,17 @@ describe('App', () => {
     await user.click(screen.getByRole('button', { name: /Epic Radiant Orders/i }));
     expect(screen.getByRole('heading', { name: /Epic Radiant Orders: summary/i })).toBeInTheDocument();
     expect(screen.getByText(/7 failures in the previous month/i)).toBeInTheDocument();
+  });
+
+  it('opens history for a non-Radiant demo process', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(screen.getByRole('button', { name: /Revenue Cycle Claim Aging/i }));
+
+    expect(
+      screen.getByRole('heading', { name: /Revenue Cycle Claim Aging: summary/i }),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/3 failures in the previous month/i)).toBeInTheDocument();
   });
 });
