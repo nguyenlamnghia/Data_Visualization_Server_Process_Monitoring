@@ -45,7 +45,13 @@ export function ProcessHistory({ processName, runs }: ProcessHistoryProps) {
       </div>
       <div className="history-frame">
         <svg viewBox={`0 0 1230 ${height}`} role="img" aria-label={`${processName} one-month history`}>
-          <rect x={chartLeft + 420} y={chartTop - 14} width={270} height={height - chartTop} fill="var(--work-window)" />
+          <rect
+            x={chartLeft + Math.round(((8 - scale.startHour) / (scale.endHour - scale.startHour)) * scale.width)}
+            y={chartTop - 14}
+            width={Math.round(((17 - 8) / (scale.endHour - scale.startHour)) * scale.width)}
+            height={height - chartTop}
+            fill="var(--work-window)"
+          />
           {ticks.map((tick) => (
             <g key={tick.hour}>
               <line x1={tick.x} y1={chartTop - 16} x2={tick.x} y2={height - 12} stroke="#dce3e8" strokeDasharray="2 4" />
