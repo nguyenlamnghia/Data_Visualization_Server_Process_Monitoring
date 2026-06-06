@@ -288,6 +288,10 @@ select {
   width: 100%;
 }
 
+.timeline-label.failed {
+  color: var(--danger);
+}
+
 .timeline-label:hover,
 .timeline-label:focus-visible,
 .timeline-label[aria-pressed="true"] {

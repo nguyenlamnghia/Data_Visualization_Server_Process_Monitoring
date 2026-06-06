@@ -119,10 +119,15 @@ export function ProcessTimeline({
                 onMouseEnter={() => setHoveredProcessId(run.id)}
                 onMouseLeave={() => setHoveredProcessId(null)}
               >
-                <foreignObject x="0" y={y - 11} width={chartLeft - 18} height="28">
+                <foreignObject
+                  x="0"
+                  y={y - 11}
+                  width={Math.max(120, actualX - 10)}
+                  height="28"
+                >
                   <button
                     type="button"
-                    className="timeline-label"
+                    className={failed ? 'timeline-label failed' : 'timeline-label'}
                     aria-pressed={selected}
                     onClick={() => onSelectProcess(run)}
                   >
