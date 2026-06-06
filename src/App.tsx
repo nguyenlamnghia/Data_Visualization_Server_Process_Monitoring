@@ -44,8 +44,8 @@ export default function App() {
     [selectedDate, selectedRuns],
   );
   const averageFailureRate = useMemo(
-    () => calculateAverageFailureRate(dailySummaries, selectedDate),
-    [selectedDate],
+    () => calculateAverageFailureRate(dailySummaries),
+    [],
   );
   const selectedHistory = useMemo(
     () => (selectedProcess ? getProcessHistory(processHistory, selectedProcess.processName) : []),

@@ -86,14 +86,17 @@ describe('dashboard metrics', () => {
       baselineFailureRate: 0,
     });
     expect(calculateAverageFailureRate([])).toBe(0);
-    expect(calculateAverageFailureRate([{ ...dailySummaries[0] }], dailySummaries[0].date)).toBe(
-      0,
-    );
+    expect(calculateAverageFailureRate([{ ...dailySummaries[0] }])).toBe(1.2);
   });
 
-  it('computes average failure baseline excluding selected date outlier', () => {
-    const baseline = calculateAverageFailureRate(dailySummaries, '2016-03-20');
-    expect(baseline).toBeCloseTo(2.77, 1);
+  it('computes a stable 14-day average failure baseline including the selected date', () => {
+    const baseline = calculateAverageFailureRate(dailySummaries);
+    const highDayKpis = getDailyKpis(getRunsForDate(processRuns, '2016-03-20'), dailySummaries);
+    const lowDayKpis = getDailyKpis(getRunsForDate(processRuns, '2016-03-07'), dailySummaries);
+
+    expect(baseline).toBeCloseTo(3.06, 2);
+    expect(highDayKpis.baselineFailureRate).toBe(baseline);
+    expect(lowDayKpis.baselineFailureRate).toBe(baseline);
   });
 
   it('returns Epic Radiant Orders history with seven failures through March 20', () => {

@@ -58,10 +58,10 @@ describe('App', () => {
       'true',
     );
     expect(screen.getByText('Failure Rate').parentElement).toHaveTextContent('1.2%');
-    expect(screen.getByText('14-Day Avg').parentElement).toHaveTextContent('3.2%');
+    expect(screen.getByText('14-Day Avg').parentElement).toHaveTextContent('3.1%');
     expect(
       within(screen.getByRole('region', { name: /14-day failure overview/i })).getByText(
-        'Avg 3.2%',
+        'Avg 3.1%',
       ),
     ).toBeInTheDocument();
   });

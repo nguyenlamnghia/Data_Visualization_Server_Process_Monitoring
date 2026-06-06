@@ -28,18 +28,12 @@ export function filterProcessRuns(runs: ProcessRun[], options: FilterOptions): P
   });
 }
 
-export function calculateAverageFailureRate(
-  summaries: DailyFailureSummary[],
-  selectedDate?: string,
-): number {
-  const relevant = selectedDate
-    ? summaries.filter((summary) => summary.date !== selectedDate)
-    : summaries;
-  if (relevant.length === 0) {
+export function calculateAverageFailureRate(summaries: DailyFailureSummary[]): number {
+  if (summaries.length === 0) {
     return 0;
   }
-  const total = relevant.reduce((sum, summary) => sum + summary.failureRate, 0);
-  return Number((total / relevant.length).toFixed(2));
+  const total = summaries.reduce((sum, summary) => sum + summary.failureRate, 0);
+  return Number((total / summaries.length).toFixed(2));
 }
 
 export function getDailyKpis(
@@ -65,7 +59,7 @@ export function getDailyKpis(
     failedTasks: summary.failedTasks,
     delayedTasks,
     totalTasks: summary.totalTasks,
-    baselineFailureRate: calculateAverageFailureRate(summaries, summary.date),
+    baselineFailureRate: calculateAverageFailureRate(summaries),
   };
 }
 
