@@ -82,6 +82,13 @@ export function ProcessTimeline({
             fill="#fbfcfd"
             stroke="#d9e0e6"
           />
+          <rect
+            x={chartLeft + Math.round(((8 - scale.startHour) / 27) * scale.width)}
+            y={chartTop - 18}
+            width={Math.round(((17 - 8) / 27) * scale.width)}
+            height={height - chartTop - 2}
+            fill="var(--work-window)"
+          />
           {axisHours.map((hour) => {
             const x = chartLeft + Math.round(((hour - scale.startHour) / 27) * scale.width);
             const majorHour = hour % 3 === 0 || hour === scale.startHour || hour === scale.endHour;
@@ -144,12 +151,12 @@ export function ProcessTimeline({
                   strokeWidth={2}
                 />
                 <line
-                  x1={actualX}
+                  x1={actualX + averageWidth}
                   x2={actualX + averageWidth}
-                  y1={y + 16}
+                  y1={y - 6}
                   y2={y + 16}
-                  stroke="#596774"
-                  strokeWidth={2}
+                  stroke="#17212b"
+                  strokeWidth={failed ? 2 : 1}
                 />
                 <rect
                   x={actualX}
