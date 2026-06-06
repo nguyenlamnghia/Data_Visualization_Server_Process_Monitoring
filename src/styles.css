@@ -174,42 +174,74 @@ select {
   white-space: nowrap;
 }
 
-.overview-chart {
-  height: 150px;
-}
-
-.overview-date-strip {
-  border-top: 1px solid var(--line);
-  display: flex;
-  flex-wrap: wrap;
+.overview-strip {
+  display: grid;
   gap: 4px;
-  margin-top: 12px;
-  padding-top: 10px;
+  grid-template-columns: repeat(14, minmax(0, 1fr));
 }
 
-.overview-date-button {
-  background: #ffffff;
-  border: 1px solid var(--line);
-  border-radius: 4px;
-  color: var(--muted);
+.overview-day {
+  align-items: stretch;
+  background: transparent;
+  border: 0;
   cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 0;
+}
+
+.overview-day-chart {
+  display: block;
+  position: relative;
+}
+
+.overview-pct {
+  color: var(--muted);
+  display: block;
   font-size: 12px;
   font-weight: 700;
-  line-height: 1.2;
-  min-height: 28px;
-  padding: 5px 7px;
+  text-align: center;
 }
 
-.overview-date-button:hover,
-.overview-date-button:focus-visible {
-  border-color: var(--danger);
+.overview-bar {
+  background: var(--danger-soft);
+  border-radius: 4px 4px 0 0;
+  bottom: 0;
+  display: block;
+  left: 12%;
+  position: absolute;
+  right: 12%;
+}
+
+.overview-average-line {
+  border-top: 2px dotted var(--danger);
+  left: 0;
+  position: absolute;
+  right: 0;
+}
+
+.overview-day-label {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+  text-align: center;
+  text-decoration: underline;
+}
+
+.overview-day:hover .overview-day-label,
+.overview-day:focus-visible .overview-day-label {
   color: var(--ink);
 }
 
-.overview-date-button[aria-pressed="true"] {
-  background: var(--ink);
-  border-color: var(--ink);
-  color: #ffffff;
+.overview-day.selected .overview-bar {
+  background: var(--danger);
+}
+
+.overview-day.selected .overview-pct,
+.overview-day.selected .overview-day-label {
+  color: var(--danger);
+  font-weight: 800;
 }
 
 .showing-banner {

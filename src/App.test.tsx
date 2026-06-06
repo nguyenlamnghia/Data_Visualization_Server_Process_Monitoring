@@ -66,6 +66,17 @@ describe('App', () => {
     ).toBeInTheDocument();
   });
 
+  it('renders a single overview block with a clickable column per day', () => {
+    render(<App />);
+    const region = screen.getByRole('region', { name: /14-day failure overview/i });
+    // 14 day buttons, no separate duplicate date strip.
+    const dayButtons = within(region).getAllByRole('button');
+    expect(dayButtons).toHaveLength(14);
+    expect(
+      within(region).getByRole('button', { name: '20 Mar, 6.7% failed' }),
+    ).toBeInTheDocument();
+  });
+
   it('filters processes by search text', async () => {
     const user = userEvent.setup();
     render(<App />);

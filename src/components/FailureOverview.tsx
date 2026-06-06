@@ -1,14 +1,3 @@
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  Cell,
-  ReferenceLine,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from 'recharts';
 import type { DailyFailureSummary } from '../types';
 
 interface FailureOverviewProps {
@@ -18,21 +7,18 @@ interface FailureOverviewProps {
   onSelectDate: (date: string) => void;
 }
 
-type FailureBarClickData = {
-  date?: string;
-  payload?: DailyFailureSummary;
-};
-
 const dateButtonFormatter = new Intl.DateTimeFormat('en-GB', {
   timeZone: 'UTC',
   day: 'numeric',
   month: 'short',
 });
 
-function formatDateButtonLabel(summary: DailyFailureSummary) {
-  const dateLabel = dateButtonFormatter.format(new Date(`${summary.date}T00:00:00Z`));
-  return `${dateLabel}, ${summary.failureRate.toFixed(1)}% failed`;
+function formatDateLabel(summary: DailyFailureSummary) {
+  return dateButtonFormatter.format(new Date(`${summary.date}T00:00:00Z`));
 }
+
+const chartHeight = 120;
+const topPadding = 22;
 
 export function FailureOverview({
   summaries,
@@ -40,16 +26,10 @@ export function FailureOverview({
   averageFailureRate,
   onSelectDate,
 }: FailureOverviewProps) {
-  const maxFailureRate = Math.max(0, ...summaries.map((summary) => summary.failureRate));
-  const yAxisMax = Math.max(8, Math.ceil(maxFailureRate + 1));
-
-  const handleBarClick = (data: unknown) => {
-    const clickedData = data as FailureBarClickData;
-    const date = clickedData.date ?? clickedData.payload?.date;
-    if (date) {
-      onSelectDate(date);
-    }
-  };
+  const maxFailureRate = Math.max(8, ...summaries.map((summary) => summary.failureRate));
+  const usableHeight = chartHeight - topPadding;
+  const heightFor = (rate: number) => Math.max(4, (rate / maxFailureRate) * usableHeight);
+  const averageY = topPadding + (usableHeight - (averageFailureRate / maxFailureRate) * usableHeight);
 
   return (
     <section className="overview-section" aria-label="14-day failure overview">
@@ -60,40 +40,33 @@ export function FailureOverview({
         </div>
         <span className="baseline-label">Avg {averageFailureRate.toFixed(1)}%</span>
       </div>
-      <div className="overview-chart">
-        <ResponsiveContainer width="100%" height={150}>
-          <BarChart data={summaries} margin={{ top: 18, right: 18, bottom: 0, left: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e4e9ee" />
-            <XAxis dataKey="label" tickLine={false} axisLine={false} />
-            <YAxis hide domain={[0, yAxisMax]} />
-            <Tooltip formatter={(value) => [`${value}%`, 'Failure rate']} />
-            <ReferenceLine y={averageFailureRate} stroke="#d71920" strokeDasharray="2 4" />
-            <Bar dataKey="failureRate" radius={[4, 4, 0, 0]} onClick={handleBarClick}>
-              {summaries.map((entry) => (
-                <Cell
-                  key={entry.date}
-                  fill={entry.date === selectedDate ? '#d71920' : '#f4b4ce'}
-                  stroke={entry.date === selectedDate ? '#17212b' : 'transparent'}
-                  strokeWidth={entry.date === selectedDate ? 2 : 0}
-                  cursor="pointer"
-                />
-              ))}
-            </Bar>
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
-      <div className="overview-date-strip" aria-label="Select overview date">
-        {summaries.map((entry) => {
-          const label = formatDateButtonLabel(entry);
+      <div className="overview-strip" aria-label="Select overview date">
+        {summaries.map((summary) => {
+          const selected = summary.date === selectedDate;
+          const barHeight = heightFor(summary.failureRate);
           return (
             <button
               type="button"
-              className="overview-date-button"
-              key={entry.date}
-              aria-pressed={entry.date === selectedDate}
-              onClick={() => onSelectDate(entry.date)}
+              key={summary.date}
+              className={selected ? 'overview-day selected' : 'overview-day'}
+              aria-pressed={selected}
+              aria-label={`${formatDateLabel(summary)}, ${summary.failureRate.toFixed(1)}% failed`}
+              onClick={() => onSelectDate(summary.date)}
             >
-              {label}
+              <span className="overview-day-chart" style={{ height: `${chartHeight}px` }}>
+                <span className="overview-pct">{summary.failureRate.toFixed(1)}%</span>
+                <span
+                  className="overview-bar"
+                  style={{ height: `${barHeight}px` }}
+                  aria-hidden="true"
+                />
+                <span
+                  className="overview-average-line"
+                  style={{ top: `${averageY}px` }}
+                  aria-hidden="true"
+                />
+              </span>
+              <span className="overview-day-label">{formatDateLabel(summary)}</span>
             </button>
           );
         })}
