@@ -126,4 +126,16 @@ describe('App', () => {
     ).toBeInTheDocument();
     expect(screen.getByText(/3 failures in the previous month/i)).toBeInTheDocument();
   });
+
+  it('opens history for a succeeded March 20 process', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(screen.getByRole('button', { name: /Pharmacy Refill Queue/i }));
+
+    expect(
+      screen.getByRole('heading', { name: /Pharmacy Refill Queue: summary/i }),
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/No history available/i)).not.toBeInTheDocument();
+  });
 });

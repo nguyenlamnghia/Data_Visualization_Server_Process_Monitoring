@@ -151,6 +151,14 @@ describe('dashboard metrics', () => {
     expect(claimAgingHistory.some((run) => run.date === '2016-03-20')).toBe(true);
   });
 
+  it('provides history for every March 20 demo process', () => {
+    const march20Runs = getRunsForDate(processRuns, '2016-03-20');
+
+    march20Runs.forEach((run) => {
+      expect(getProcessHistory(processHistory, run.processName).length).toBeGreaterThan(0);
+    });
+  });
+
   it('uses summary failed task count when selected date has no process run details', () => {
     const copiedSummaries = dailySummaries.map((summary) => ({ ...summary }));
     const kpis = getDailyKpis([], copiedSummaries, '2016-03-13');

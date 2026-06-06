@@ -398,7 +398,7 @@ const historyDates = [
   '2016-03-20',
 ];
 
-const historySpecs: HistorySpec[] = [
+const manualHistorySpecs: HistorySpec[] = [
   {
     processName: 'Epic Radiant Orders',
     slug: 'radiant-orders',
@@ -472,6 +472,27 @@ const historySpecs: HistorySpec[] = [
     durationOverrides: { '2016-03-13': 69.5 },
   },
 ];
+
+function buildSucceededHistorySpec(template: ProcessTemplate): HistorySpec {
+  return {
+    processName: template.processName,
+    slug: template.slug,
+    averageDurationMinutes: template.averageDurationMinutes,
+    startTime: template.scheduledTime,
+    failedDates: [],
+  };
+}
+
+const march20ProcessCount =
+  daySpecs.find((day) => day.date === DEFAULT_DATE)?.count ?? processCatalog.length;
+const manualHistoryProcessNames = new Set(
+  manualHistorySpecs.map((spec) => spec.processName),
+);
+const generatedSucceededHistorySpecs = processCatalog
+  .slice(0, march20ProcessCount)
+  .filter((template) => !manualHistoryProcessNames.has(template.processName))
+  .map(buildSucceededHistorySpec);
+const historySpecs: HistorySpec[] = [...manualHistorySpecs, ...generatedSucceededHistorySpecs];
 
 function addMinutes(date: string, time: string, minutes: number): string {
   const [hourPart, minutePart] = time.split(':');
